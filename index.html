@@ -1,47 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Meta Tags for SEO and Accessibility -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pranay Thakur - Under Maintenance</title>
-    <style>
-        body {
-            /* Updated background color */
-            background-color: #010010;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            /* Starry background animation */
-            background-image: url('https://www.transparenttextures.com/patterns/black-linen.png'); /* Replace with your star background image */
-            animation: twinkling 10s linear infinite;
-        }
+    <meta name="description" content="Pranay Thakur - Full Stack Developer specializing in building modern web applications with expertise in frontend and backend technologies.">
+    <meta name="author" content="Pranay Thakur">
+    <meta name="keywords" content="Full Stack Developer, Pranay Thakur, Web Development, JavaScript, Node.js, React, Vue, MongoDB, HTML, CSS">
+    <meta property="og:title" content="Pranay Thakur - Full Stack Developer">
+    <meta property="og:description" content="Pranay Thakur is a Full Stack Developer specializing in building modern web applications.">
+    <meta property="og:image" content="/assets/logo.svg">
+    <meta property="og:type" content="website">
 
-        @keyframes twinkling {
-            0% {
-                background-position: 0 0;
-            }
-            100% {
-                background-position: 10000px 5000px; /* Adjust values to control the speed and coverage of stars */
-            }
-        }
+    <!-- Favicon -->
+    <link rel="icon" href="src/assets/Logo.svg" type="image/svg+xml">
 
-        img {
-            max-width: 100%; /* Ensures the image is not stretched beyond its original width */
-            max-height: 100vh; /* Ensures the image is not stretched beyond the viewport height */
-            object-fit: contain; /* Ensures the image maintains its aspect ratio */
-            border-radius: 10px; /* Rounded corners for the image */
-        }
-    </style>
+    <title>Pranay Thakur - Full Stack Developer</title>
 </head>
+
 <body>
-
-<!-- Replace 'your-image-url-here.jpg' with the actual URL of your image -->
-<img src="./Banner.png" alt="Descriptive Text">
-
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
+
 </html>

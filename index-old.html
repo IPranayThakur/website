@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pranay Thakur - Under Maintenance</title>
+    <style>
+        body {
+            /* Updated background color */
+            background-color: #010010;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            /* Starry background animation */
+            background-image: url('https://www.transparenttextures.com/patterns/black-linen.png'); /* Replace with your star background image */
+            animation: twinkling 10s linear infinite;
+        }
+
+        @keyframes twinkling {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 10000px 5000px; /* Adjust values to control the speed and coverage of stars */
+            }
+        }
+
+        img {
+            max-width: 100%; /* Ensures the image is not stretched beyond its original width */
+            max-height: 100vh; /* Ensures the image is not stretched beyond the viewport height */
+            object-fit: contain; /* Ensures the image maintains its aspect ratio */
+            border-radius: 10px; /* Rounded corners for the image */
+        }
+    </style>
+</head>
+<body>
+
+<!-- Replace 'your-image-url-here.jpg' with the actual URL of your image -->
+<img src="./Banner.png" alt="Descriptive Text">
+
+</body>
+</html>

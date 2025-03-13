@@ -1,12 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import { ChevronDown, Download, Github, Linkedin, Mail } from 'lucide-react';
 import { ProjectCard } from './components/ProjectCard';
+import SaturnPlanet from './components/SaturnPlanet';
+import Moon from './components/Moon';
 
 function App() {
   const starFieldRef = useRef(null);
   const nameRef = useRef(null);
 
   useEffect(() => {
+    // Create stars
     if (starFieldRef.current) {
       const field = starFieldRef.current;
       field.innerHTML = '';
@@ -29,6 +32,7 @@ function App() {
       }
     }
 
+    // Scroll effect for name
     const handleScroll = () => {
       if (nameRef.current) {
         const scrolled = window.scrollY;
@@ -37,8 +41,49 @@ function App() {
       }
     };
 
+    // Add cursor-based glow effect for the name
+    const nameElement = nameRef.current;
+    if (nameElement) {
+      const handleMouseMove = (e) => {
+        const rect = nameElement.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const xPercent = (x / rect.width) * 100;
+        const yPercent = (y / rect.height) * 100;
+        
+        const nameText = nameElement.querySelector('.name-text');
+        if (nameText) {
+          nameText.style.background = `radial-gradient(circle at ${xPercent}% ${yPercent}%, #FFFFFF 0%, #C0C0C0 50%, #A0A0A0 100%)`;
+          nameText.style.webkitBackgroundClip = 'text';
+          nameText.style.backgroundClip = 'text';
+          nameText.style.color = 'transparent';
+        }
+      };
+
+      const handleMouseLeave = () => {
+        const nameText = nameElement.querySelector('.name-text');
+        if (nameText) {
+          nameText.style.background = 'linear-gradient(to right, #C0C0C0, #E8E8E8)';
+          nameText.style.webkitBackgroundClip = 'text';
+          nameText.style.backgroundClip = 'text';
+          nameText.style.color = 'transparent';
+        }
+      };
+
+      nameElement.addEventListener('mousemove', handleMouseMove);
+      nameElement.addEventListener('mouseleave', handleMouseLeave);
+    }
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (nameElement) {
+        nameElement.removeEventListener('mousemove', handleMouseMove);
+        nameElement.removeEventListener('mouseleave', handleMouseLeave);
+      }
+    };
   }, []);
 
   const scrollToSection = (id) => {
@@ -46,18 +91,23 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black overflow-x-hidden">
-      <div ref={starFieldRef} className="star-field" />
+    <div className="relative min-h-screen bg-black overflow-x-hidden">
+      {/* Saturn planet */}
+      {/* <SaturnPlanet /> */}
       
-      {/* Hero Section */}
-      <section className="relative z-10 min-h-screen flex flex-col items-center justify-center">
+      {/* Star field */}
+      <div ref={starFieldRef} className="star-field"></div>
+      <Moon />
+      
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
         <div className="text-center">
           <div ref={nameRef} className="name-container mb-4">
             <h1 className="name-text text-6xl md:text-8xl font-bold tracking-wider">
               PRANAY THAKUR
             </h1>
           </div>
-          <p className="text-gray-400 text-xl mb-8">
+          <p className="text-gray-100 text-xl mb-8">
             Full Stack Developer
           </p>
         </div>
@@ -68,7 +118,7 @@ function App() {
           Explore My Work
           <ChevronDown />
         </button>
-      </section>
+      </div>
 
       {/* Tech Stack Section */}
       <section id="work" className="relative z-10 py-20 px-4 md:px-8">
@@ -136,14 +186,13 @@ function App() {
             </a>
           </div>
           <a
-          href="https://drive.google.com/uc?export=download&id=1YVPXKVAMfW0fX3RnWW63siFqksUhh5VC"
-          download
-          class="inline-flex items-center gap-2 bg-white/10 text-white px-6 py-3 rounded-full hover:bg-white/20 transition-all"
-        >
-          <Download size={20} />
-          Download Resume
-        </a>
-
+            href="https://drive.google.com/uc?export=download&id=1YVPXKVAMfW0fX3RnWW63siFqksUhh5VC"
+            download
+            className="inline-flex items-center gap-2 bg-white/10 text-white px-6 py-3 rounded-full hover:bg-white/20 transition-all"
+          >
+            <Download size={20} />
+            Download Resume
+          </a>
         </div>
       </section>
     </div>

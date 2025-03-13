@@ -57,6 +57,20 @@ body {
   filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)) brightness(1.2);
 }
 
+@media (max-width: 768px) {
+  .name-text {
+    background: linear-gradient(to right, #000000, #444444); /* Black to dark gray */
+    color: transparent;
+  }
+
+  .name-text:hover {
+    background: linear-gradient(to right, #555555, #777777); /* Slightly lighter gray on hover */
+    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8)) brightness(0.9);
+  }
+}
+
+
+
 .tech-icon {
   transition: all 0.3s ease;
   filter: grayscale(100%);

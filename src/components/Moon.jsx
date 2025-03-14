@@ -9,11 +9,13 @@ const Moon = () => {
   useEffect(() => {
     // Check if mobile on mount and when resizing
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // Standard breakpoint for mobile
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      return mobile;
     };
     
     // Run on mount
-    checkMobile();
+    const isMobileView = checkMobile();
     
     // Current div reference
     const currentRef = mountRef.current;
@@ -36,10 +38,21 @@ const Moon = () => {
       precision: 'highp'
     });
     
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit to 2x for performance
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000, 0);
-    currentRef.appendChild(renderer.domElement);
+    
+    // Calculate target position based on current viewport
+    const getTargetPosition = (isMobile, aspect) => {
+      if (isMobile) {
+        return new THREE.Vector3(0, 3, 0); // Top center for mobile
+      } else {
+        return new THREE.Vector3(-aspect * 3, 0, 0); // Left side for desktop
+      }
+    };
+    
+    // Calculate final position
+    const finalPosition = getTargetPosition(isMobileView, aspect);
     
     // Create moon texture with improved settings
     const textureLoader = new THREE.TextureLoader();
@@ -51,7 +64,7 @@ const Moon = () => {
     });
     
     // Moon geometry - adjust size based on device
-    const moonSize = window.innerWidth < 768 ? 1.8 : 2.5; // Smaller moon for mobile
+    const moonSize = isMobileView ? 1.8 : 2.5;
     const moonGeometry = new THREE.SphereGeometry(moonSize, 128, 128);
     
     // Material settings
@@ -59,9 +72,6 @@ const Moon = () => {
       map: moonTexture,
       roughness: 0.5,
       metalness: 0.0,
-      // Base color settings - will be adjusted for mobile
-      emissive: new THREE.Color(0x111111),
-      emissiveIntensity: 0.05,
       displacementMap: moonTexture,
       displacementScale: 0.01,
       displacementBias: -0.005
@@ -69,81 +79,103 @@ const Moon = () => {
     
     // Create and store the moon's original color
     const desktopEmissiveColor = new THREE.Color(0x111111);
-    const mobileEmissiveColor = new THREE.Color(0x1a1a1a); // Slightly darker for mobile
+    const mobileEmissiveColor = new THREE.Color(0x1a1a1a);
     
-    // Color adjustment for mobile to increase contrast
-    const adjustMoonColor = () => {
-      if (window.innerWidth < 768) {
-        // Mobile: adjust colors to contrast with silver text
+    // Color adjustment for moon
+    const adjustMoonColor = (isMobile) => {
+      if (isMobile) {
         moonMaterial.emissive = mobileEmissiveColor;
-        moonMaterial.emissiveIntensity = 0.08; // Slightly brighter
-        moonMaterial.color = new THREE.Color(0x9a9a9a); // Slightly darker than b3b1b1
+        moonMaterial.emissiveIntensity = 0.08;
+        moonMaterial.color = new THREE.Color(0x9a9a9a);
       } else {
-        // Desktop: original colors
         moonMaterial.emissive = desktopEmissiveColor;
         moonMaterial.emissiveIntensity = 0.05;
-        moonMaterial.color = new THREE.Color(0xffffff); // Default white, texture provides the color
+        moonMaterial.color = new THREE.Color(0xffffff);
       }
     };
     
-    // Run color adjustment on init
-    adjustMoonColor();
+    // Apply initial color before rendering
+    adjustMoonColor(isMobileView);
     
     const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+    
+    // Start at center with slight scale effect
+    moon.position.set(0, 0, 0);
+    moon.scale.set(0.9, 0.9, 0.9);
     scene.add(moon);
     
-    // Position the moon based on device type
-    const positionMoon = () => {
-      if (window.innerWidth < 768) {
-        // Mobile: Position at top
-        moon.position.set(0, 3, 0);
-      } else {
-        // Desktop: Position at left
-        const newAspect = window.innerWidth / window.innerHeight;
-        moon.position.set(-newAspect * 3, 0, 0);
-      }
+    // Animation parameters
+    const targetPosition = new THREE.Vector3().copy(finalPosition);
+    const targetScale = isMobileView ? 0.72 : 1;
+    
+    // Opacity animation for fade-in effect
+    moonMaterial.transparent = true;
+    moonMaterial.opacity = 0;
+    
+    // Track animation state
+    const animationState = {
+      initialAnimationComplete: false,
+      initialAnimationProgress: 0
     };
     
-    positionMoon();
-    
-    // Lighting setup - adjust for mobile/desktop
+    // Lighting setup
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     scene.add(ambientLight);
     
-    // Main directional light
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
     directionalLight.position.set(5, 3, 5);
     scene.add(directionalLight);
     
-    // Rim light
     const rimLight = new THREE.DirectionalLight(0xffffff, 0.5);
     rimLight.position.set(-5, 0, 5);
     scene.add(rimLight);
     
-    // Front light
     const frontLight = new THREE.DirectionalLight(0xffffff, 1.0);
     frontLight.position.set(0, 0, 1);
     scene.add(frontLight);
     
-    // Extra top light for mobile - only activate in mobile mode
-    const topLight = new THREE.DirectionalLight(0x3a3a3a, 0);
+    const topLight = new THREE.DirectionalLight(0x3a3a3a, isMobileView ? 0.5 : 0);
     topLight.position.set(0, 5, 1);
     scene.add(topLight);
     
-    // Animation state for transitions
-    let targetPosition = new THREE.Vector3();
-    moon.position.clone(targetPosition);
+    // Add to DOM
+    currentRef.appendChild(renderer.domElement);
     
     // Animation loop
     let animationId;
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       
-      // Rotate moon slowly
-      moon.rotation.y += 0.002;
+      // Handle initial animation from center to final position
+      if (!animationState.initialAnimationComplete) {
+        // Gradually increase progress
+        animationState.initialAnimationProgress += 0.015;
+        
+        if (animationState.initialAnimationProgress >= 1) {
+          animationState.initialAnimationComplete = true;
+          animationState.initialAnimationProgress = 1;
+        }
+        
+        // Ease function for smoother animation (cubic ease-out)
+        const eased = 1 - Math.pow(1 - animationState.initialAnimationProgress, 3);
+        
+        // Move from center to final position with easing
+        moon.position.x = THREE.MathUtils.lerp(0, targetPosition.x, eased);
+        moon.position.y = THREE.MathUtils.lerp(0, targetPosition.y, eased);
+        
+        // Scale up slightly as it moves
+        const scaleValue = THREE.MathUtils.lerp(0.9, targetScale, eased);
+        moon.scale.set(scaleValue, scaleValue, scaleValue);
+        
+        // Fade in
+        moonMaterial.opacity = THREE.MathUtils.lerp(0, 1, eased);
+      } else {
+        // Regular position updates after initial animation
+        moon.position.lerp(targetPosition, 0.05);
+      }
       
-      // Smooth position transition
-      moon.position.lerp(targetPosition, 0.05);
+      // Rotate moon slowly regardless of animation state
+      moon.rotation.y += 0.002;
       
       // Adjust top light intensity based on viewport width
       const targetIntensity = window.innerWidth < 768 ? 0.5 : 0;
@@ -161,22 +193,17 @@ const Moon = () => {
       camera.updateProjectionMatrix();
       
       // Check if mobile and update state
-      checkMobile();
+      const isMobile = checkMobile();
       
       // Set target position for smooth transition
-      if (window.innerWidth < 768) {
-        // Mobile: top position
-        targetPosition.set(0, 3, 0);
-      } else {
-        // Desktop: left position
-        targetPosition.set(-newAspect * 3, 0, 0);
-      }
+      const newPosition = getTargetPosition(isMobile, newAspect);
+      targetPosition.copy(newPosition);
       
-      // Also adjust moon size based on screen size
-      moon.scale.setScalar(window.innerWidth < 768 ? 0.72 : 1);
+      // Adjust target scale based on screen size
+      const newScale = isMobile ? 0.72 : 1;
       
       // Adjust moon color based on device type
-      adjustMoonColor();
+      adjustMoonColor(isMobile);
       
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -191,7 +218,6 @@ const Moon = () => {
         currentRef.removeChild(renderer.domElement);
       }
       
-      // Dispose of resources
       moonGeometry.dispose();
       moonMaterial.dispose();
       renderer.dispose();

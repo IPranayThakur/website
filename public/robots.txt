@@ -1,0 +1,12 @@
+# Allow all search engines to crawl the entire site
+User-agent: *
+Disallow: /admin/       # Prevent crawling of admin pages (if applicable)
+Disallow: /login/       # Prevent crawling of login page
+Disallow: /private/     # Prevent crawling of private pages or sections
+
+# Allow crawlers to index JavaScript and other dynamic resources
+User-agent: Googlebot
+Allow: /               # Allow crawling the entire site (since it's a SPA)
+
+# Sitemap (Optional) - If you have plans for dynamic sitemaps or want to create one later, use this
+# Sitemap: https://pranaythakur.com/sitemap.xml
